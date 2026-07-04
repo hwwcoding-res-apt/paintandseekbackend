@@ -1,0 +1,16 @@
+{
+  "name": "paint-and-seek",
+  "version": "1.0.0",
+  "description": "2D paint-and-seek hide-and-seek game with room codes, up to 4 players",
+  "main": "server.js",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "ws": "^8.18.0"
+  }
+}
