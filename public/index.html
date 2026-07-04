@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<title>Paint &amp; Seek</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<div id="toast"></div>
+
+<!-- HOME -->
+<section id="screen-home" class="screen">
+  <div class="brandmark">
+    <div class="drip"></div>
+    <h1>Paint &amp; Seek</h1>
+    <p class="tagline">Camouflage your character into a wildly complex room. Blend in perfectly and you're invisible.</p>
+  </div>
+
+  <div class="card">
+    <label class="field">
+      <span>Your name</span>
+      <input id="name-input" maxlength="16" placeholder="Rembrandt" autocomplete="off" />
+    </label>
+
+    <div id="home-actions" class="stack">
+      <button id="btn-show-create" class="btn btn-primary">Create a room</button>
+      <button id="btn-show-join" class="btn btn-ghost">Join a room</button>
+    </div>
+
+    <div id="join-fields" class="stack hidden">
+      <label class="field">
+        <span>Room code</span>
+        <input id="code-input" maxlength="4" placeholder="ABCD" autocomplete="off" style="text-transform:uppercase; letter-spacing:.2em; font-family:'Space Mono',monospace;" />
+      </label>
+      <div class="row-gap">
+        <button id="btn-join" class="btn btn-primary">Join</button>
+        <button id="btn-cancel-join" class="btn btn-ghost">Back</button>
+      </div>
+    </div>
+  </div>
+
+  <p class="hint">Up to 4 players &middot; same room code, any device</p>
+</section>
+
+<!-- LOBBY -->
+<section id="screen-lobby" class="screen hidden">
+  <div class="tube-label">
+    <span class="tube-eyebrow">Room code</span>
+    <span id="lobby-code" class="tube-code">ABCD</span>
+    <button id="btn-copy-code" class="btn-copy" title="Copy code">copy</button>
+  </div>
+
+  <div class="card">
+    <h2 class="section-title">Painters ready</h2>
+    <div id="lobby-players" class="player-chip-list"></div>
+
+    <p class="hint-inline">Roles are assigned automatically when the game starts &mdash; hiders paint themselves to disappear into the room, seekers hunt them down once time's up.</p>
+
+    <div id="map-picker" class="map-picker hidden">
+      <label for="map-select" class="section-title">Map</label>
+      <select id="map-select" class="map-select"></select>
+      <p id="map-picker-note" class="hint-inline hidden"></p>
+    </div>
+
+    <p id="lobby-hint" class="hint">Waiting for the host to start&hellip;</p>
+    <button id="btn-start" class="btn btn-primary hidden">Start the game</button>
+  </div>
+
+  <button id="btn-leave-lobby" class="btn btn-text">Leave room</button>
+</section>
+
+<!-- GAME -->
+<section id="screen-game" class="screen screen-game-full hidden">
+  <div class="game-shell">
+    <div class="game-top-bar">
+      <span class="hud-code" id="game-code">ABCD</span>
+      <span class="hud-phase" id="game-phase">Hiding</span>
+      <span class="hud-role" id="hud-role"></span>
+      <div class="hud-timer" id="game-timer">0:20</div>
+      <span class="hud-right"><span id="game-remaining">4</span> hiders left</span>
+      <button id="btn-open-paint" class="btn btn-primary btn-paint-toggle hidden">🎨 Paint yourself</button>
+    </div>
+
+    <div class="game-main">
+      <div class="canvas-wrap-full">
+        <canvas id="game-canvas"></canvas>
+        <div id="banner" class="banner hidden"></div>
+        <div id="hiding-cover" class="hiding-cover hidden">
+          <div class="hiding-cover-inner">
+            <div class="hiding-cover-icon">🙈</div>
+            <p>No peeking! Hiders are painting themselves in.</p>
+            <p class="hiding-cover-timer" id="hiding-cover-timer">0:20</p>
+          </div>
+        </div>
+      </div>
+
+      <aside class="side-panel side-right" id="panel-paint">
+        <span class="field-label">You, up close</span>
+        <p class="hint-inline">Draw directly on yourself &middot; tap the surroundings to pick up a color</p>
+
+        <div class="brush-info">
+          <span class="field-label">Brush</span>
+          <div class="brush-row-inline">
+            <div id="brush-preview" class="brush-preview"></div>
+            <input id="color-picker" type="color" value="#6B3F69" title="Custom brush color" />
+          </div>
+        </div>
+
+        <div class="brush-size-picker">
+          <span class="field-label">Size</span>
+          <div class="brush-size-row" id="brush-size-row">
+            <button class="size-btn selected" data-size="1">S</button>
+            <button class="size-btn" data-size="3">M</button>
+            <button class="size-btn" data-size="6">L</button>
+            <button class="size-btn" data-size="10">XL</button>
+          </div>
+        </div>
+
+        <div id="swatches" class="swatches"></div>
+
+        <div class="paint-row">
+          <button id="btn-undo" class="btn btn-ghost btn-small" disabled title="Undo">↶ Undo</button>
+          <button id="btn-redo" class="btn btn-ghost btn-small" disabled title="Redo">↷ Redo</button>
+        </div>
+        <div class="paint-row">
+          <button id="btn-reset-skin" class="btn btn-ghost btn-small">Reset</button>
+        </div>
+      </aside>
+    </div>
+
+    <div class="game-bottom-bar">
+      <div id="player-strip" class="player-strip"></div>
+      <p class="hint-inline hint-center" id="move-hint">Arrow keys / WASD to move</p>
+    </div>
+  </div>
+</section>
+
+<!-- RESULTS -->
+<section id="screen-results" class="screen hidden">
+  <h2 class="section-title" id="results-outcome">Results</h2>
+  <div class="results-section">
+    <h3 class="results-heading">Hiders</h3>
+    <div id="results-hiders" class="results-list"></div>
+  </div>
+  <div class="results-section">
+    <h3 class="results-heading">Seekers</h3>
+    <div id="results-seekers" class="results-list"></div>
+  </div>
+  <div class="stack">
+    <button id="btn-play-again" class="btn btn-primary hidden">Play again</button>
+    <button id="btn-leave-results" class="btn btn-ghost">Leave room</button>
+  </div>
+</section>
+
+<script src="game.js"></script>
+</body>
+</html>
